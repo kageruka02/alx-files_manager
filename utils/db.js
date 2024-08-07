@@ -16,7 +16,7 @@ class DBClient {
         console.error('failed to connect to mongodb', error);
         this.connected = false;
       } else {
-        this.dbconnected = this.client.db(this.database);
+        this.db = this.client.db(this.database);
         this.connected = true;
       }
     });
@@ -27,14 +27,14 @@ class DBClient {
   }
 
   async nbUsers() {
-    if (!this.dbconnected) {
+    if (!this.connected) {
       throw new Error('Database not connected');
     }
     return this.db.collection('users').countDocuments();
   }
 
   async nbFiles() {
-    if (!this.dbconnected) {
+    if (!this.connected) {
       throw new Error('Database not connected');
     }
     return this.db.collection('files').countDocuments();
