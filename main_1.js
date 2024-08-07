@@ -6,7 +6,8 @@ const waitConnection = () => {
     const repeatFct = async () => {
       await setTimeout(() => {
         i += 1;
-        if (i >= 20) {
+        if (i >= 10) {
+          console.log('hello')
           reject();
         } else if (!dbClient.isAlive()) {
           repeatFct();
@@ -20,9 +21,15 @@ const waitConnection = () => {
 };
 
 (async () => {
-  console.log(dbClient.isAlive());
+  try {console.log(dbClient.isAlive());
   await waitConnection();
   console.log(dbClient.isAlive());
   console.log(await dbClient.nbUsers());
   console.log(await dbClient.nbFiles());
+    
+  }
+  catch (error) {
+    console.error('Error',error)
+  }
+  
 })();

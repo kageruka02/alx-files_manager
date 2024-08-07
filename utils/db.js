@@ -14,9 +14,10 @@ class DBClient {
     this.connected = false;
     this.client.connect((error) => {
       if (error) {
-        // console.error('failed to connect to mongodb', error);
+         console.error('failed to connect to mongodb', error);
         this.connected = false;
       } else {
+         console.log('mongodb connected')
         this.db = this.client.db(database);
         this.connected = true;
       }
