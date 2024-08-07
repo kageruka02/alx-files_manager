@@ -2,10 +2,14 @@ import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 
 export default class AppController {
-  static getStatus(req, res) {
-    const isAlive = redisClient.isAlive();
-    const dbisAlive = dbClient.isAlive();
-    res.status(200).json({ redis: isAlive, db: dbisAlive });
+  static async getStatus(req, res) {
+    try {
+      const isAlive = redisClient.isAlive();
+      const dbisAlive = dbClient.isAlive();
+      return res.status(200).json({ redis: isAlive, db: dbisAlive });
+    } catch (error) {
+      return res.status(500).json({ error: 'Error checking status' });
+    }
   }
 
   static getStats(req, res) {
