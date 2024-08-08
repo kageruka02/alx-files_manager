@@ -38,7 +38,7 @@ class UsersController {
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    //user is available
+
     return res.status(200).json({ id: user._id.toS, email: user.email });
   }
 }
