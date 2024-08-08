@@ -38,7 +38,7 @@ class UsersController {
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    return res.status(200).json({ id: user._id, email: userId });
+    return res.status(200).json({ id: user._id, email: user.email });
   }
 }
 export default UsersController;
