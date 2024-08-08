@@ -17,7 +17,7 @@ export default class AuthController {
 
     const [email, password] = credentials.split(':');
     if (!email || !password) {
-      return res.status(401).json({ error: 'invalid header' });
+      return res.status(401).json({ error: 'Unauthorized' });
     }
     const hashpassword = sha1(password);
     const user = await dbClient.db
