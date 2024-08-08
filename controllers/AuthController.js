@@ -10,10 +10,15 @@ export default class AuthController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     const base64Credentials = header.split(' ')[1];
+
     const credentials = Buffer.from(base64Credentials, 'base64').toString(
       'ascii',
     );
+
     const [email, password] = credentials.split(':');
+    if (!email || !password) {
+      return res.status(401).json({ error: 'invalid header' });
+    }
     const hashpassword = sha1(password);
     const user = await dbClient.db
       .collection('users')
