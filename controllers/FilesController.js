@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -28,7 +29,7 @@ class FilesController {
     if (parentId !== '0') {
       const parentFile = await dbClient.db
         .collection('files')
-        .findOne({ _id: parentId });
+        .findOne({ _id: ObjectId(parentId) });
       if (!parentFile) {
         return res.status(400).json({ error: 'Parent not found' });
       }
