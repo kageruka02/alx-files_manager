@@ -1,0 +1,61 @@
+import { v4 as uuidv4 } from 'uuid';
+import { promises as fs } from 'fs';
+import path from 'path';
+import dbClient from '../utils/db';
+import UsersController from './UsersController';
+
+class FilesController {
+  static async postUpload(req, res) {
+    const user = await UsersController.getMe;
+    const userId = user.id;
+    const {
+      name, type, parentId = '0', isPublic = false, data,
+    } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: 'Missing name' });
+    }
+    if (!type || !['folder', 'file', 'image'].includes(type)) {
+      return res.status(400).json({ error: 'Missing type' });
+    }
+
+    if (type !== 'folder' && !data) {
+      return res.status(400).json({ error: 'Missing data' });
+    }
+    if (parentId !== '0') {
+      const parentFile = await dbClient.db
+        .collection('files')
+        .findOne({ _id: parentId });
+      if (!parentFile) {
+        return res.status(400).json({ error: 'Parent not found' });
+      }
+      if (parentFile.type !== 'folder') {
+        return res.status(400).json({ error: 'Parent is not a folder' });
+      }
+    }
+    if (type === 'folder') {
+      const file = await dbClient.db.collection('files').insertOne({
+        userId,
+        name,
+        type,
+        isPublic,
+        parentId,
+      });
+      return res.status(201).json(file);
+    }
+    const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
+    const fileId = uuidv4();
+    const localPath = path.join(FOLDER_PATH, fileId);
+    await fs.mkdir(FOLDER_PATH, { recursive: true });
+    await fs.writeFile(localPath, Buffer.from(data, 'base64'));
+    const file = await dbClient.db.collection('files').insertOne({
+      userId,
+      name,
+      type,
+      isPublic,
+      parentId,
+      localPath,
+    });
+    return res.status(201).json(file);
+  }
+}
+export default FilesController;
