@@ -2,12 +2,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { promises as fs } from 'fs';
 import path from 'path';
 import dbClient from '../utils/db';
-import UsersController from './UsersController';
+import redisClient from '../utils/redis';
 
 class FilesController {
   static async postUpload(req, res) {
-    const user = await UsersController.getMe;
-    const userId = user.id;
+    const token = req.header('X-Token');
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     const {
       name, type, parentId = '0', isPublic = false, data,
     } = req.body;
