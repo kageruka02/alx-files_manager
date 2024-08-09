@@ -13,9 +13,7 @@ class FilesController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const {
-      name, type, parentId = '0', isPublic = false, data,
-    } = req.body;
+    const { name, type, parentId = '0', isPublic = false, data } = req.body;
     if (!name) {
       return res.status(400).json({ error: 'Missing name' });
     }
@@ -37,30 +35,51 @@ class FilesController {
         return res.status(400).json({ error: 'Parent is not a folder' });
       }
     }
+
+    let file;
     if (type === 'folder') {
-      const file = await dbClient.db.collection('files').insertOne({
+      const result = await dbClient.db.collection('files').insertOne({
+        userId: ObjectId(userId),
+        name,
+        type,
+        isPublic,
+        parentId: parentId === '0' ? '0' : ObjectId(parentId),
+      });
+      file = {
+        id: result.insertedId.toString(),
         userId,
         name,
         type,
         isPublic,
-        parentId,
+        parentId: parentId === '0' ? '0' : parentId,
+      };
+    } else {
+      const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
+      const fileId = uuidv4();
+      const localPath = path.join(FOLDER_PATH, fileId);
+      await fs.mkdir(FOLDER_PATH, { recursive: true });
+      await fs.writeFile(localPath, Buffer.from(data, 'base64'));
+      const result = await dbClient.db.collection('files').insertOne({
+        userId: ObjectId(userId),
+        name,
+        type,
+        isPublic,
+        parentId: parentId === '0' ? '0' : ObjectId(parentId),
+        localPath,
       });
-      return res.status(201).json(file);
+      file = {
+        id: result.insertedId.toString(),
+        userId,
+        name,
+        type,
+        isPublic,
+        parentId: parentId === '0' ? '0' : parentId,
+        localPath,
+      };
     }
-    const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
-    const fileId = uuidv4();
-    const localPath = path.join(FOLDER_PATH, fileId);
-    await fs.mkdir(FOLDER_PATH, { recursive: true });
-    await fs.writeFile(localPath, Buffer.from(data, 'base64'));
-    const file = await dbClient.db.collection('files').insertOne({
-      userId,
-      name,
-      type,
-      isPublic,
-      parentId,
-      localPath,
-    });
+
     return res.status(201).json(file);
   }
 }
+
 export default FilesController;
