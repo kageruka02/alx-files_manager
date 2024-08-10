@@ -102,7 +102,7 @@ class FilesController {
     if (!file) {
       res.status(404).json({ error: 'Not found' });
     }
-    return file;
+    return res.status(200).send(file);
   }
 
   static async getIndex(req, res) {
@@ -115,7 +115,6 @@ class FilesController {
     const parentId = req.query.parentId || '0';
     const page = parseInt(req.query.page, 10) || 0;
 
-    // Construct the aggregation pipeline
     const pipeline = [
       {
         $match: {
