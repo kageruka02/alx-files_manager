@@ -45,7 +45,7 @@ class FilesController {
         name,
         type,
         isPublic,
-        parentId: parentId === '0' ? '0' : ObjectId(parentId),
+        parentId: parentId === '0' ? 0 : ObjectId(parentId),
       });
       file = {
         id: result.insertedId.toString(),
@@ -53,7 +53,7 @@ class FilesController {
         name,
         type,
         isPublic,
-        parentId: parentId === '0' ? '0' : parentId,
+        parentId: parentId === '0' ? 0 : parentId,
       };
     } else {
       const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
@@ -66,7 +66,7 @@ class FilesController {
         name,
         type,
         isPublic,
-        parentId: parentId === '0' ? '0' : ObjectId(parentId),
+        parentId: parentId === '0' ? 0 : ObjectId(parentId),
         localPath,
       });
       file = {
@@ -75,7 +75,7 @@ class FilesController {
         name,
         type,
         isPublic,
-        parentId: parentId === '0' ? '0' : parentId,
+        parentId: parentId === '0' ? 0 : parentId,
         localPath,
       };
     }
